@@ -109,53 +109,53 @@ Resources:
     Properties:
       Name: !Sub '${RepoName}-API'
 
-    GetUserResource:
-      Type: 'AWS::ApiGateway::Resource'
-      Properties:
-        RestApiId: !Ref ApiGatewayRestApi
-        ParentId: !GetAtt 'ApiGatewayRestApi.RootResourceId'
-        PathPart: user
+  GetUserResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !GetAtt 'ApiGatewayRestApi.RootResourceId'
+      PathPart: user
 
-    GetUserMethod:
-      Type: 'AWS::ApiGateway::Method'
-      Properties:
-        RestApiId: !Ref ApiGatewayRestApi
-        ResourceId: !Ref GetUserResource
-        HttpMethod: GET
-        AuthorizationType: CUSTOM
-        AuthorizerId: !Ref AuthLambdaAuthorizer
-        Integration:
-          Type: AWS_PROXY
-          IntegrationHttpMethod: POST
-          Uri: !Sub
-            - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations'
-            - LambdaArn: !GetAtt GetUserLambda.Arn
-
-    AuthLambdaAuthorizer:
-      Type: 'AWS::ApiGateway::Authorizer'
-      Properties:
-        Name: 'AuthLambdaAuthorizer'
-        RestApiId: !Ref ApiGatewayRestApi
-        Type: TOKEN
-        IdentitySource: 'method.request.header.Authorization'
-        AuthorizerUri: !Sub
+  GetUserMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref GetUserResource
+      HttpMethod: GET
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref AuthLambdaAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
           - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations'
-          - LambdaArn: !GetAtt AuthLambda.Arn
+          - LambdaArn: !GetAtt GetUserLambda.Arn
 
-    LambdaInvokePermission:
-      Type: 'AWS::Lambda::Permission'
-      Properties:
-        FunctionName: !Ref GetUserLambda
-        Action: 'lambda:InvokeFunction'
-        Principal: 'apigateway.amazonaws.com'
-        SourceArn: !Sub
-          - 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*'
-          - ApiId: !Ref ApiGatewayRestApi
+  AuthLambdaAuthorizer:
+    Type: 'AWS::ApiGateway::Authorizer'
+    Properties:
+      Name: 'AuthLambdaAuthorizer'
+      RestApiId: !Ref ApiGatewayRestApi
+      Type: TOKEN
+      IdentitySource: 'method.request.header.Authorization'
+      AuthorizerUri: !Sub
+        - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations'
+        - LambdaArn: !GetAtt AuthLambda.Arn
 
-    ApiGatewayDeployment:
-      Type: 'AWS::ApiGateway::Deployment'
-      DependsOn: GetUserMethod
-      Properties:
-        RestApiId: !Ref ApiGatewayRestApi
-        StageName: !Ref Stage
-        Description: !Sub 'Deployment for ${Stage} stage'
+  LambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !Ref GetUserLambda
+      Action: 'lambda:InvokeFunction'
+      Principal: 'apigateway.amazonaws.com'
+      SourceArn: !Sub
+        - 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*'
+        - ApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    DependsOn: GetUserMethod
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      StageName: !Ref Stage
+      Description: !Sub 'Deployment for ${Stage} stage'
