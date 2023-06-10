@@ -10,7 +10,7 @@ cred = credentials.Certificate(config)
 initialize_app(cred)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, context):     # type: ignore
     if 'headers' not in event or 'Authorization' not in event['headers']:
         raise Exception('No auth token was provided')
 
