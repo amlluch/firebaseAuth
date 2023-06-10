@@ -4,10 +4,14 @@ import os
 from firebase_admin import auth, credentials, initialize_app    # type: ignore
 
 
-def lambda_handler(event, context):     # type: ignore
+secrets = os.environ["FIREBASE_CREDENTIALS"]
+config = json.loads(secrets)
 
-    secrets = os.environ["FIREBASE_CREDENTIALS"]
-    config = json.loads(secrets)
+cred = credentials.Certificate(config)
+initialize_app(cred)
+
+
+def lambda_handler(event, context):     # type: ignore
 
     if 'authorizationToken' not in event:
         raise Exception('No auth token was provided')
@@ -19,10 +23,6 @@ def lambda_handler(event, context):     # type: ignore
         raise Exception("No Bearer token provided")
 
     try:
-
-        cred = credentials.Certificate(config)
-        initialize_app(cred)
-
         decoded_token = auth.verify_id_token(authorization_token)
         auth_granted = True
 
@@ -48,7 +48,7 @@ def make_auth_response(decoded_token, event, auth_granted=False):
             ]
         },
         'context': {
-            'decodedToken': json.dumps(decoded_token) if auth_granted else {}
+            'decodedToken': json.dumps(decoded_token) if auth_granted else ""
         }
     }
 
