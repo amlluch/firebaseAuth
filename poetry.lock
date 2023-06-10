@@ -587,7 +587,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "5ea9e5ff899dd2e36cd61c31daddd064c54ff7b01398644b8097123c084bdb43"
+content-hash = "0aa4a1e5e5f7b2b5434ea9da2b5219a683861a1911d560897ebe9191584b39ff"
 
 [metadata.files]
 cachecontrol = [
