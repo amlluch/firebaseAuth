@@ -4,7 +4,8 @@ import os
 from firebase_admin import auth, credentials, initialize_app    # type: ignore
 
 
-config = json.loads(os.environ["FIREBASE_CREDENTIALS"])
+secrets = json.loads(os.environ["FIREBASE_CREDENTIALS"])
+config = json.loads(secrets["FirebaseSecrets"])
 
 cred = credentials.Certificate(config)
 initialize_app(cred)
