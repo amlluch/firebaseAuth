@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "firebaseauth"
+version = "0.1.0"
+description = "Firebase proof of concept"
+authors = ["Alfonso Lluch <amlluch@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pyyaml = "^6.0"
+firebase-admin = "^6.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

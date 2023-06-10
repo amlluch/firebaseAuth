@@ -1,0 +1,51 @@
+from firebase_admin import auth, credentials, initialize_app
+
+from src.common import load_config
+
+config = load_config()
+
+cred = credentials.Certificate(config)
+initialize_app(cred)
+
+
+def lambda_handler(event, context):
+    if 'headers' not in event or 'Authorization' not in event['headers']:
+        raise Exception('No auth token was provided')
+
+    authorization_header = event['headers']['Authorization']
+    try:
+        authorization_token = authorization_header.split('Bearer ')[1]
+    except Exception:
+        raise Exception("No Bearer token provided")
+
+    try:
+        decoded_token = auth.verify_id_token(authorization_token)
+        auth_granted = True
+
+    except Exception:
+        decoded_token = None
+        auth_granted = False
+
+    return make_auth_response(decoded_token, event, auth_granted=auth_granted)
+
+
+def make_auth_response(decoded_token, event, auth_granted=False):
+
+    response = {
+        'principalId': decoded_token["uid"] if auth_granted else '*',
+        'policyDocument': {
+            'Version': '2012-10-17',
+            'Statement': [
+                {
+                    'Action': 'execute-api:Invoke',
+                    'Effect': 'Allow' if auth_granted else 'Deny',
+                    'Resource': event['methodArn']
+                }
+            ]
+        },
+        'context': {
+            'decodedToken': decoded_token if auth_granted else {}
+        }
+    }
+
+    return response
