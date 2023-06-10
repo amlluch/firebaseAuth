@@ -48,7 +48,7 @@ def make_auth_response(decoded_token, event, auth_granted=False):
             ]
         },
         'context': {
-            'decodedToken': decoded_token if auth_granted else {}
+            'decodedToken': json.dumps(decoded_token) if auth_granted else {}
         }
     }
 
