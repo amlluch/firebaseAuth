@@ -32,6 +32,10 @@ Resources:
       FunctionName: firebase-auth
       Layers:
         - !Ref DependenciesLambdaLayer
+      Environment:
+        Variables:
+          FIREBASE_CREDENTIALS: !Sub '{{resolve:secretsmanager:firebase:SecretString}}'
+
 
   GetUserLambda:
     Type: AWS::Lambda::Function
@@ -69,6 +73,14 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+        - PolicyName: SecretsManagerExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:firebase*"
 
   GetUserExecutionRole:
     Type: AWS::IAM::Role
