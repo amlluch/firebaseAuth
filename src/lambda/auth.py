@@ -7,9 +7,7 @@ from firebase_admin import auth, credentials, initialize_app    # type: ignore
 def lambda_handler(event, context):     # type: ignore
 
     secrets = os.environ["FIREBASE_CREDENTIALS"]
-    print("secrets", secrets)
-    print("Type:", type(secrets))
-    config = json.loads(secrets["FirebaseSecrets"])
+    config = json.loads(secrets)
 
     if 'headers' not in event or 'Authorization' not in event['headers']:
         raise Exception('No auth token was provided')
