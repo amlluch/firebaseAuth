@@ -8,6 +8,7 @@ def lambda_handler(event, context):     # type: ignore
 
     secrets = os.environ["FIREBASE_CREDENTIALS"]
     print("secrets", secrets)
+    print("Type:", type(secrets))
     config = json.loads(secrets["FirebaseSecrets"])
 
     if 'headers' not in event or 'Authorization' not in event['headers']:
