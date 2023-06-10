@@ -6,6 +6,10 @@ from firebase_admin import auth, credentials, initialize_app    # type: ignore
 
 def lambda_handler(event, context):     # type: ignore
 
+    secrets = os.environ["FIREBASE_CREDENTIALS"]
+    print("secrets", secrets)
+    config = json.loads(secrets["FirebaseSecrets"])
+
     if 'headers' not in event or 'Authorization' not in event['headers']:
         raise Exception('No auth token was provided')
 
@@ -14,9 +18,6 @@ def lambda_handler(event, context):     # type: ignore
         authorization_token = authorization_header.split('Bearer ')[1]
     except Exception:
         raise Exception("No Bearer token provided")
-
-    secrets = json.loads(os.environ["FIREBASE_CREDENTIALS"])
-    config = json.loads(secrets["FirebaseSecrets"])
 
     try:
 
