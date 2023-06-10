@@ -3,7 +3,7 @@ import sys
 import firebase_admin
 from firebase_admin import auth, credentials
 
-from src.common import load_config
+from common import load_config
 
 config = load_config()
 

@@ -1,8 +1,10 @@
+import json
+import os
+
 from firebase_admin import auth, credentials, initialize_app
 
-from src.common import load_config
 
-config = load_config()
+config = json.loads(os.environ["FIREBASE_CREDENTIALS"])
 
 cred = credentials.Certificate(config)
 initialize_app(cred)

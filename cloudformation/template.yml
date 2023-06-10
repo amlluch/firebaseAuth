@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Firebase proof of concept
+
+Parameters:
+  RepoName:
+    Type: String
+    Description: The name of the GitHub repository
+
+  LambdaCodeVersion:
+    Type: String
+    Description: Version ID of the Lambda code in the S3 bucket
+
+  LambdaLayerVersion:
+    Type: String
+    Description: Version ID of the Lambda dependencies in the S3 bucket
+
+  Stage:
+    Type: String
+    Description: Deployment stage. master->prod, dev->dev, test->test
+
+Resources:
+  AuthLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: src.lambda.auth.lambda_handler
+      Role: !GetAtt AuthExecutionRole.Arn
+      Code:
+        S3Bucket: lambda-code-tests
+        S3Key: !Sub "${RepoName}/lambda_code.zip"
+        S3ObjectVersion: !Ref LambdaCodeVersion
+      Runtime: python3.8
+      FunctionName: firebase-auth
+      Layers:
+        - !Ref DependenciesLambdaLayer
+
+  GetUserLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: src.lambda.get_user.lambda_handler
+      Role: !GetAtt GetUserExecutionRole.Arn
+      Code:
+        S3Bucket: lambda-code-tests
+        S3Key: !Sub "${RepoName}/lambda_code.zip"
+        S3ObjectVersion: !Ref LambdaCodeVersion
+      Runtime: python3.8
+      FunctionName: get-user
+      Layers:
+        - !Ref DependenciesLambdaLayer
+
+  AuthExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
+  GetUserExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
+  DependenciesLambdaLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: lambda-dependencies
+      CompatibleRuntimes:
+        - python3.9
+      Content:
+        S3Bucket: lambda-dependencies-test
+        S3Key: !Sub "${RepoName}/dependencies_layer.zip"
+        S3ObjectVersion: !Ref LambdaLayerVersion
+

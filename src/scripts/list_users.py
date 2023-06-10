@@ -1,6 +1,6 @@
 from firebase_admin import auth, credentials, initialize_app
 
-from src.common import load_config
+from common import load_config
 
 config = load_config()
 
