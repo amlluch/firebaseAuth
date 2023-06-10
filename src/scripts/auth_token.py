@@ -3,7 +3,7 @@ import sys
 import firebase_admin   # type: ignore
 from firebase_admin import auth, credentials
 
-from common import load_config
+from common import load_config  # type: ignore
 
 config = load_config()
 
