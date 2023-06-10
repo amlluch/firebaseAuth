@@ -1,7 +1,7 @@
 import json
 import os
 
-from firebase_admin import auth, credentials, initialize_app
+from firebase_admin import auth, credentials, initialize_app    # type: ignore
 
 
 config = json.loads(os.environ["FIREBASE_CREDENTIALS"])
