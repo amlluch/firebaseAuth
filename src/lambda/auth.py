@@ -9,10 +9,10 @@ def lambda_handler(event, context):     # type: ignore
     secrets = os.environ["FIREBASE_CREDENTIALS"]
     config = json.loads(secrets)
 
-    if 'headers' not in event or 'Authorization' not in event['headers']:
+    if 'authorizationToken' not in event:
         raise Exception('No auth token was provided')
 
-    authorization_header = event['headers']['Authorization']
+    authorization_header = event['authorizationToken']
     try:
         authorization_token = authorization_header.split('Bearer ')[1]
     except Exception:
