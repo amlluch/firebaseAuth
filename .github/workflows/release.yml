@@ -1,0 +1,537 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - patch
+      - minor
+      - major
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install GitHub CLI
+        run: |
+          curl -sSL https://github.com/cli/cli/releases/download/v2.0.0/gh_2.0.0_linux_amd64.tar.gz \
+          | sudo tar xz -C /usr/local/bin --strip-components=2 gh_2.0.0_linux_amd64/bin/gh
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Set prefix and branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        id: set_prefix
+        run: |
+          git fetch
+
+          TAG_NAME=${GITHUB_REF##*/}
+          COMMIT_HASH=$(gh api repos/${{ github.repository }}/releases/tags/$TAG_NAME --jq '.target_commitish')
+          BRANCHES=$(git branch -r --contains "$BRANCH_NAME@{0}")
+          
+          BRANCH_NAME=$(echo $BRANCHES | cut -d'/' -f 2)
+
+          if [[ "$BRANCH_NAME" == "master" ]]; then
+            echo "prefix=r" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "test" ]]; then
+            echo "prefix=t" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "dev" ]]; then
+            echo "prefix=d" >> $GITHUB_ENV
+          else
+            exit 1
+          fi
+
+      - name: Write prefix to file
+        run: |
+          echo ${{ env.prefix }} > prefix.txt
+
+      - name: Upload prefix as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: prefix
+          path: prefix.txt
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+        
+          input_tag=$(basename $GITHUB_REF)
+          
+          # Get the latest release tag
+          git fetch
+          git fetch --tags
+          latest_tag=$(gh release list --repo ${{ github.repository }} | grep "^${{ env.prefix }}" | grep -v "revert" | cut -f1 | sort --version-sort | tail -n1)
+          
+          # Extract the current version number
+          base_string=$(echo ${latest_tag:-"${{ env.prefix }}0.0.0"} | cut -c2-)
+          base_array=($(echo "$base_string" | tr '.' '\n'))
+          v_major=${base_array[0]}
+          v_minor=${base_array[1]}
+          v_patch=${base_array[2]}
+          
+          # Create a new tag based on the input
+          if [[ $input_tag == 'major' ]]; then
+            v_major=$((v_major+1))
+            v_minor=0
+            v_patch=0
+          elif [[ $input_tag == 'patch' ]]; then
+            v_patch=$((v_patch+1))
+          elif [[ $input_tag == 'minor' ]]; then
+            v_minor=$((v_minor+1))
+            v_patch=0
+          else
+            echo "Invalid input tag"
+            exit 1
+          fi
+          
+          new_tag="${{ env.prefix }}$v_major.$v_minor.$v_patch"
+          
+          # Check if the new tag already exists
+          if gh release view $new_tag; then
+            echo "Tag $new_tag already exists, exiting"
+            exit 1
+          fi
+          
+          # Create and publish a new release with the new tag
+          echo "The new release is $new_tag"
+          gh release create $new_tag -t "$new_tag" -n "Notes for release $new_tag"
+          
+          echo "release_tag=$new_tag" >> $GITHUB_ENV
+
+      - name: Write release tag to file
+        run: |
+          echo ${{ env.release_tag }} > release_tag.txt
+
+      - name: Upload tag as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: release_tag
+          path: release_tag.txt
+
+      - name: Cleanup input tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        if: always()
+        run: |
+          echo "This is the cleanup step"
+          input_tag=$(basename $GITHUB_REF)
+          release_id=$(gh api repos/${{ github.repository }}/releases/tags/$input_tag | jq .id)
+          
+          gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+          gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/$input_tag
+          
+          exit 0
+
+  build:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Download prefix artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prefix
+
+      - name: Read prefix
+        run: |
+          SETUP_PREFIX=$(cat prefix.txt)
+          echo "PREFIX is $SETUP_PREFIX"
+          echo "prefix=$SETUP_PREFIX" >> $GITHUB_ENV
+
+      - name: Download tag artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: release_tag
+
+      - name: Read tag
+        run: |
+          TAG=$(cat release_tag.txt)
+          echo "TAG is $TAG"
+          echo "release_tag=$TAG" >> $GITHUB_ENV
+
+      - name: Check if src has changed
+        id: check_changes
+        run: |
+          # Get the tags for the last two releases
+
+          git fetch
+          git fetch --tags
+
+          LATEST_TAG=${{ env.release_tag }}
+          PREVIOUS_TAG=$(git tag |  grep "^${{ env.prefix }}" | grep -v "revert" | sort -V | tail -n 2 | head -n 1)
+          echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_ENV
+
+          # Compare the tags and set CHANGED
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "src_changed=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          if [ "$LATEST_TAG" != "$PREVIOUS_TAG" ]; then
+            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- src)
+          fi
+          if [ -n "$CHANGED" ]; then
+            echo "src_changed=true" >> $GITHUB_ENV
+          else
+            echo "src_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Write src_changed to file
+        run: |
+          echo ${{ env.src_changed }} > src_changed.txt
+
+      - name: Upload src_changed as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: src_changed
+          path: src_changed.txt
+
+      - name: Check if tests has changed
+        id: check_tests_changes
+        run: |
+          # Get the tags for the last two releases
+
+          git fetch
+          git fetch --tags
+
+          LATEST_TAG=${{ env.release_tag }}
+          PREVIOUS_TAG=${{ env.previous_tag }}
+
+          # Compare the tags and set CHANGED
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "tests_changed=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          if [ "$LATEST_TAG" != "$PREVIOUS_TAG" ]; then
+            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- tests)
+          fi
+          if [ -n "$CHANGED" ]; then
+            echo "tests_changed=true" >> $GITHUB_ENV
+          else
+            echo "tests_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check if dependencies changed
+        id: check_dependencies_changes
+        run: |
+          # Get the tags for the last two releases
+
+          git fetch
+          git fetch --tags
+
+          LATEST_TAG=${{ env.release_tag }}
+          PREVIOUS_TAG=${{ env.previous_tag }}
+
+          # Compare the tags and set CHANGED
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "dependencies_changed=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          if [ "$LATEST_TAG" != "$PREVIOUS_TAG" ]; then
+            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- poetry.lock)
+          fi
+          if [ -n "$CHANGED" ]; then
+            echo "dependencies_changed=true" >> $GITHUB_ENV
+          else
+            echo "dependencies_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Write dependencies_changed to file
+        run: |
+          echo ${{ env.dependencies_changed }} > dependencies_changed.txt
+
+      - name: Upload dependencies_changed as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependencies_changed
+          path: dependencies_changed.txt
+
+      - name: Check if cloudformation changed
+        id: check_cloudformation_changes
+        run: |
+          # Get the tags for the last two releases
+
+          git fetch
+          git fetch --tags
+
+          LATEST_TAG=${{ env.release_tag }}
+          PREVIOUS_TAG=${{ env.previous_tag }}
+
+          # Compare the tags and set CHANGED
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "cloudformation_changed=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          if [ "$LATEST_TAG" != "$PREVIOUS_TAG" ]; then
+            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- poetry.lock)
+          fi
+          if [ -n "$CHANGED" ]; then
+            echo "cloudformation_changed=true" >> $GITHUB_ENV
+          else
+            echo "cloudformation_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Python Environment
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Poetry Install
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        uses: knowsuchagency/poetry-install@v2
+        with:
+          create-virtualenv: true
+
+      - name: Install Dependencies
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        run: |
+          poetry install
+
+      - name: Run mypy
+        id: run_mypy
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        run: |
+          poetry run mypy src/
+
+      - name: Install cfn linter
+        if: env.cloudformation_changed == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install cfn-lint
+
+      - name: Run cfn-lint
+        if: env.cloudformation_changed == 'true'
+        id: run_cfnlint
+        run: |
+          cfn-lint cloudformation/*
+
+      - name: Delete release and tag
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          release_id=$(gh api repos/${{ github.repository }}/releases/tags/${{ env.release_tag }} | jq .id)
+          
+          gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+          gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/${{ env.release_tag }}
+
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: release_tag
+
+    - name: Read tag
+      run: |
+        TAG=$(cat release_tag.txt)
+        echo "TAG is $TAG"
+        echo "release_tag=$TAG" >> $GITHUB_ENV
+
+    - name: Install jq
+      run: sudo apt-get install -y jq
+
+    - name: Set up Python Environment
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Poetry Install
+      uses: knowsuchagency/poetry-install@v2
+      with:
+        create-virtualenv: true
+    - name: Install Dependencies
+      run: |
+        poetry install
+    - name: Run Tests
+      id: run_tests
+      run: |
+        poetry run pytest tests/
+
+    - name: Delete release and tag
+      if: failure()
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      run: |
+        release_id=$(gh api repos/${{ github.repository }}/releases/tags/${{ env.input_tag }} | jq .id)
+        
+        gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+        gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/${{ env.release_tag }}
+
+  deploy:
+    needs: [ test ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: prefix
+
+      - name: Read prefix
+        run: |
+          SETUP_PREFIX=$(cat prefix.txt)
+          echo "PREFIX is $SETUP_PREFIX"
+          echo "prefix=$SETUP_PREFIX" >> $GITHUB_ENV
+
+      - name: Download release tag artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: release_tag
+
+      - name: Read release tag
+        run: |
+          TAG=$(cat release_tag.txt)
+          echo "TAG is $TAG"
+          echo "release_tag=$TAG" >> $GITHUB_ENV
+
+      - name: Download src_changed artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: src_changed
+
+      - name: Read src_changed
+        run: |
+          SRC_CHANGED=$(cat src_changed.txt)
+          echo "src_changed=$SRC_CHANGED" >> $GITHUB_ENV
+
+      - name: Download dependencies_changed artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dependencies_changed
+
+      - name: Read dependencies_changed
+        run: |
+          DEPENDENCIES_CHANGED=$(cat dependencies_changed.txt)
+          echo "dependencies_changed=$DEPENDENCIES_CHANGED" >> $GITHUB_ENV
+
+      - name: Generate zip for code
+        if: env.src_changed == 'true'
+        run: |
+          zip -r lambda_code.zip src
+
+      - name: Set up Python Environment
+        if: env.lockfile_changed == 'true'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Poetry Install
+        if: env.dependencies_changed == 'true'
+        uses: knowsuchagency/poetry-install@v2
+
+      - name: Export requirements
+        if: env.dependencies_changed == 'true'
+        run: |
+          poetry export -f requirements.txt -o requirements.txt
+          echo "Requirements list"
+          cat requirements.txt
+
+      - name: Install requirements in file
+        if: env.dependencies_changed == 'true'
+        run: |
+          mkdir -p python
+          pip install -r requirements.txt -t python
+          zip -r dependencies_layer.zip python  >/dev/null
+          cd ..
+
+      - name: Get repository name
+        run: echo "REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f2)" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Copy code to s3
+        if: env.src_changed == 'true'
+        uses: prewk/s3-cp-action@v2
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          source: 'lambda_code.zip'
+          dest: 's3://lambda-code-tests/${{ env.REPO_NAME }}/lambda_code.zip'
+          aws_region: 'eu-west-1'
+
+      - name: Get bucket code version Id
+        run: |
+          VERSION_ID=$(aws s3api list-object-versions --bucket lambda-code-tests \
+          --prefix ${{ env.REPO_NAME }}/lambda_code.zip \
+          --query 'Versions[?IsLatest==`true`].VersionId' --output text)
+          echo "VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
+
+      - name: Copy dependencies to s3
+        if: env.dependencies_changed == 'true'
+        uses: prewk/s3-cp-action@v2
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          source: 'dependencies_layer.zip'
+          dest: 's3://lambda-dependencies-test/${{ env.REPO_NAME }}/dependencies_layer.zip'
+          aws_region: 'eu-west-1'
+
+      - name: Get bucket dependencies version Id
+        run: |
+          DEPENDENCIES_ID=$(aws s3api list-object-versions --bucket lambda-dependencies-test \
+          --prefix ${{ env.REPO_NAME }}/dependencies_layer.zip \
+          --query 'Versions[?IsLatest==`true`].VersionId' --output text)
+          echo "DEPENDENCIES_ID=$DEPENDENCIES_ID" >> $GITHUB_ENV
+
+      - name: Set stage variable
+        shell: bash
+        run: |
+          PFX="${{ env.prefix }}"
+          if [ "$PFX" = "r" ]; then
+            echo "STAGE=prod" >> $GITHUB_ENV
+          elif [ "$PFX" = "t" ]; then
+            echo "STAGE=test" >> $GITHUB_ENV
+          else
+            echo "STAGE=dev" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to AWS CloudFormation
+        run: |
+          aws cloudformation deploy --template-file cloudformation/template.yml \
+          --stack-name '${{ env.REPO_NAME }}' \
+          --capabilities CAPABILITY_IAM \
+          --parameter-overrides RepoName='${{ env.REPO_NAME }}' LambdaCodeVersion='${{ env.VERSION_ID }}' \
+          LambdaLayerVersion='${{ env.DEPENDENCIES_ID }}' Stage='${{ env.STAGE }}'
+
+      - name: Delete release and tag
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          release_id=$(gh api repos/${{ github.repository }}/releases/tags/${{ env.input_tag }} | jq .id)
+          
+          gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+          gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/${{ env.release_tag }}
