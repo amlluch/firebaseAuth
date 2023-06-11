@@ -195,14 +195,7 @@ Resources:
     Properties:
       Name: !Sub '${RepoName}-API'
 
-  GetUserResource:
-    Type: 'AWS::ApiGateway::Resource'
-    Properties:
-      RestApiId: !Ref ApiGatewayRestApi
-      ParentId: !GetAtt 'ApiGatewayRestApi.RootResourceId'
-      PathPart: user
-
-  CreateUserResource:
+  UserResource:
     Type: 'AWS::ApiGateway::Resource'
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
@@ -213,7 +206,7 @@ Resources:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
-      ResourceId: !Ref GetUserResource
+      ResourceId: !Ref UserResource
       HttpMethod: GET
       AuthorizationType: CUSTOM
       AuthorizerId: !Ref AuthLambdaAuthorizer
@@ -228,7 +221,7 @@ Resources:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
-      ResourceId: !Ref CreateUserResource
+      ResourceId: !Ref UserResource
       HttpMethod: POST
       AuthorizationType: CUSTOM
       AuthorizerId: !Ref AuthLambdaAuthorizer
