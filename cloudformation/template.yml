@@ -35,6 +35,7 @@ Resources:
       Environment:
         Variables:
           FIREBASE_CREDENTIALS: '{{resolve:secretsmanager:firebase:SecretString}}'
+          FIREBASE_AUTH: '{{resolve:secretsmanager:firebaseAuth:SecretString}}'
 
 
   GetUserLambda:

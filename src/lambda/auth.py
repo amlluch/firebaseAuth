@@ -5,6 +5,7 @@ from firebase_admin import auth, credentials, initialize_app    # type: ignore
 
 
 secrets = os.environ["FIREBASE_CREDENTIALS"]
+firebase_auth = os.environ["FIREBASE_AUTH"]
 config = json.loads(secrets)
 
 cred = credentials.Certificate(config)
@@ -13,30 +14,28 @@ initialize_app(cred)
 
 def lambda_handler(event, context):     # type: ignore
 
+    print(firebase_auth)
     if 'authorizationToken' not in event:
         return make_auth_response(event)
 
     authorization_header = event['authorizationToken']
+
+    if authorization_header == firebase_auth:
+        make_auth_response(event, decoded_token={"email": "auth@functions"}, auth_granted=True)
+
     try:
         authorization_token = authorization_header.split('Bearer ')[1]
     except Exception:
         return make_auth_response(event)
 
-    decoded_token = None
-    auth_granted = False
-
     try:
         decoded_token = auth.verify_id_token(authorization_token)
         auth_granted = True
     except Exception as e:
+        decoded_token = None
+        auth_granted = False
         print(f"Failed to verify ID token: {e}")
 
-    if not auth_granted:
-        try:
-            decoded_token = auth.verify_custom_token(authorization_token)
-            auth_granted = True
-        except Exception as e:
-            print(f"Failed to verify custom token: {e}")
 
     return make_auth_response(event, decoded_token=decoded_token,  auth_granted=auth_granted)
 
