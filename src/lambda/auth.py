@@ -14,13 +14,13 @@ initialize_app(cred)
 def lambda_handler(event, context):     # type: ignore
 
     if 'authorizationToken' not in event:
-        raise Exception('No auth token was provided')
+        return make_auth_response(event)
 
     authorization_header = event['authorizationToken']
     try:
         authorization_token = authorization_header.split('Bearer ')[1]
     except Exception:
-        raise Exception("No Bearer token provided")
+        return make_auth_response(event)
 
     try:
         decoded_token = auth.verify_id_token(authorization_token)
@@ -30,12 +30,14 @@ def lambda_handler(event, context):     # type: ignore
         decoded_token = None
         auth_granted = False
 
-    return make_auth_response(decoded_token, event, auth_granted=auth_granted)
+    return make_auth_response(event, decoded_token=decoded_token,  auth_granted=auth_granted)
 
 
-def make_auth_response(decoded_token, event, auth_granted=False):
+def make_auth_response(event, decoded_token=None, auth_granted=False):
 
-    response = {
+    if decoded_token is None:
+        decoded_token = {}
+    return {
         'principalId': decoded_token["uid"] if auth_granted else '*',
         'policyDocument': {
             'Version': '2012-10-17',
@@ -51,5 +53,3 @@ def make_auth_response(decoded_token, event, auth_granted=False):
             'decodedToken': json.dumps(decoded_token) if auth_granted else ""
         }
     }
-
-    return response
