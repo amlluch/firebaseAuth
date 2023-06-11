@@ -12,34 +12,29 @@ const logger = require("firebase-functions/logger");
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const axios = require('axios'); // Importamos axios
+const axios = require('axios');
 admin.initializeApp();
 
 exports.userCreated = functions.auth.user().onCreate((user) => {
-  // Aquí puedes realizar tareas necesarias, como enviar una notificación.
-  console.log('El usuario ' + user.uid + ' fue creado');
+  console.log('User ' + user.uid + ' was created');
 
-  // Configuramos la data que queremos enviar
   let data = {
     uid: user.uid,
     email: user.email,
-    // Agrega aquí cualquier otro campo que quieras enviar
   };
 
-  // Hacemos un POST a la URL
   axios.post('https://p845ryq0vh.execute-api.eu-west-1.amazonaws.com/prod/user', data)
     .then((response) => {
-      console.log('Respuesta recibida: ', response);
+      console.log('Received response: ', response);
     })
     .catch((error) => {
-      console.error('Error al hacer el POST: ', error);
-      // Elimina al usuario en caso de error
+      console.error('Error on POST request: ', error);
       admin.auth().deleteUser(user.uid)
         .then(() => {
-          console.log('Usuario eliminado debido a error: ', user.uid);
+          console.log('Deleted user due to an error creating it: ', user.uid);
         })
         .catch((error) => {
-          console.error('Error al eliminar al usuario: ', error);
+          console.error('Error deleting user: ', error);
         });
     });
 });
