@@ -38,7 +38,7 @@ def make_auth_response(event, decoded_token=None, auth_granted=False):
     if decoded_token is None:
         decoded_token = {}
     return {
-        'principalId': decoded_token["uid"] if auth_granted else '*',
+        'principalId': decoded_token["uid"] if auth_granted else None,
         'policyDocument': {
             'Version': '2012-10-17',
             'Statement': [
