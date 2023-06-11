@@ -34,7 +34,7 @@ Resources:
         - !Ref DependenciesLambdaLayer
       Environment:
         Variables:
-          FIREBASE_CREDENTIALS: !Sub '{{resolve:secretsmanager:firebase:SecretString}}'
+          FIREBASE_CREDENTIALS: '{{resolve:secretsmanager:firebase:SecretString}}'
 
 
   GetUserLambda:
