@@ -2,17 +2,18 @@ import json
 import boto3
 from botocore.exceptions import BotoCoreError
 
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('Users')
+
 
 def lambda_handler(event, context):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Users')
 
     body = json.loads(event['body'])
     user_id = body['uid']
     user_email = body['email']
 
     try:
-        response = table.put_item(
+        table.put_item(
             Item={
                 'uid': user_id,
                 'email': user_email
