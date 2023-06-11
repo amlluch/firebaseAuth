@@ -275,6 +275,8 @@ Resources:
 
   ApiGatewayStage:
     Type: 'AWS::ApiGateway::Stage'
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Retain
     Properties:
       StageName: !Ref Stage
       Description: !Sub 'Stage for ${Stage}'
