@@ -51,6 +51,20 @@ Resources:
       Layers:
         - !Ref DependenciesLambdaLayer
 
+  CreateUserLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: src.lambda.create_user.lambda_handler
+      Role: !GetAtt CreateUserExecutionRole.Arn
+      Code:
+        S3Bucket: lambda-code-tests
+        S3Key: !Sub "${RepoName}/lambda_code.zip"
+        S3ObjectVersion: !Ref LambdaCodeVersion
+      Runtime: python3.8
+      FunctionName: create-user
+      Layers:
+        - !Ref DependenciesLambdaLayer
+
   AuthExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -115,6 +129,29 @@ Resources:
                   - logs:PutLogEvents
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
 
+  CreateUserExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
   DependenciesLambdaLayer:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -138,6 +175,13 @@ Resources:
       ParentId: !GetAtt 'ApiGatewayRestApi.RootResourceId'
       PathPart: user
 
+  CreateUserResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !GetAtt 'ApiGatewayRestApi.RootResourceId'
+      PathPart: user
+
   GetUserMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
@@ -152,6 +196,21 @@ Resources:
         Uri: !Sub
           - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations'
           - LambdaArn: !GetAtt GetUserLambda.Arn
+
+  CreateUserMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref CreateUserResource
+      HttpMethod: POST
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref AuthLambdaAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations'
+          - LambdaArn: !GetAtt CreateUserLambda.Arn
 
   AuthLambdaAuthorizer:
     Type: 'AWS::ApiGateway::Authorizer'
@@ -168,6 +227,16 @@ Resources:
     Type: 'AWS::Lambda::Permission'
     Properties:
       FunctionName: !Ref GetUserLambda
+      Action: 'lambda:InvokeFunction'
+      Principal: 'apigateway.amazonaws.com'
+      SourceArn: !Sub
+        - 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*'
+        - ApiId: !Ref ApiGatewayRestApi
+
+  CreateUserInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !Ref CreateUserLambda
       Action: 'lambda:InvokeFunction'
       Principal: 'apigateway.amazonaws.com'
       SourceArn: !Sub
