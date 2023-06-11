@@ -277,7 +277,7 @@ jobs:
           fi
 
           if [ "$LATEST_TAG" != "$PREVIOUS_TAG" ]; then
-            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- poetry.lock)
+            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- cloudformation)
           fi
           if [ -n "$CHANGED" ]; then
             echo "cloudformation_changed=true" >> $GITHUB_ENV
