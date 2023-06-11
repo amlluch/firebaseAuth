@@ -115,43 +115,43 @@ Resources:
                   - logs:PutLogEvents
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
 
-  GatewayResponseLambdaFunction:
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Handler: src.lambda.access_denied_response.lambda_handler
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Code:
-        S3Bucket: lambda-code-tests
-        S3Key: !Sub "${RepoName}/lambda_code.zip"
-        S3ObjectVersion: !Ref LambdaCodeVersion
-      Runtime: python3.8
-      FunctionName: access_denied
-      Timeout: 30
-
-  LambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: '*'
-              - Effect: Allow
-                Action: apigateway:PUT
-                Resource: '*'
+#  GatewayResponseLambdaFunction:
+#    Type: 'AWS::Lambda::Function'
+#    Properties:
+#      Handler: src.lambda.access_denied_response.lambda_handler
+#      Role: !GetAtt LambdaExecutionRole.Arn
+#      Code:
+#        S3Bucket: lambda-code-tests
+#        S3Key: !Sub "${RepoName}/lambda_code.zip"
+#        S3ObjectVersion: !Ref LambdaCodeVersion
+#      Runtime: python3.8
+#      FunctionName: access_denied
+#      Timeout: 30
+#
+#  LambdaExecutionRole:
+#    Type: 'AWS::IAM::Role'
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: '2012-10-17'
+#        Statement:
+#          - Effect: Allow
+#            Principal:
+#              Service: lambda.amazonaws.com
+#            Action: sts:AssumeRole
+#      Policies:
+#        - PolicyName: root
+#          PolicyDocument:
+#            Version: '2012-10-17'
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - logs:CreateLogGroup
+#                  - logs:CreateLogStream
+#                  - logs:PutLogEvents
+#                Resource: '*'
+#              - Effect: Allow
+#                Action: apigateway:PUT
+#                Resource: '*'
 
   DependenciesLambdaLayer:
     Type: AWS::Lambda::LayerVersion
