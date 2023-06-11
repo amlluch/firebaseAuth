@@ -18,13 +18,11 @@ def lambda_handler(event, context):
                 'email': user_email
             }
         )
-        print(f'Successfully inserted item:  {response}')
         return {
             'statusCode': 200,
             'body': json.dumps('Successfully inserted item')
         }
     except BotoCoreError as e:
-        print(f'Error inserting item: {e}')
         return {
             'statusCode': 500,
             'body': json.dumps('Error inserting item')

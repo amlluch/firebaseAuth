@@ -14,7 +14,6 @@ initialize_app(cred)
 
 def lambda_handler(event, context):     # type: ignore
 
-    print(firebase_auth)
     if 'authorizationToken' not in event:
         return make_auth_response(event)
 
@@ -34,8 +33,6 @@ def lambda_handler(event, context):     # type: ignore
     except Exception as e:
         decoded_token = None
         auth_granted = False
-        print(f"Failed to verify ID token: {e}")
-
 
     return make_auth_response(event, decoded_token=decoded_token,  auth_granted=auth_granted)
 

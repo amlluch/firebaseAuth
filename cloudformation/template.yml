@@ -281,16 +281,6 @@ Resources:
       StageName: !Ref Stage
       Description: !Sub 'Deployment for ${Stage} stage'
 
-#  ApiGatewayStage:
-#    Type: 'AWS::ApiGateway::Stage'
-#    UpdateReplacePolicy: Delete
-#    DeletionPolicy: Retain
-#    Properties:
-#      StageName: !Ref Stage
-#      Description: !Sub 'Stage for ${Stage}'
-#      RestApiId: !Ref ApiGatewayRestApi
-#      DeploymentId: !Ref ApiGatewayDeployment
-
   AccessDeniedGatewayResponse:
     Type: 'AWS::ApiGateway::GatewayResponse'
     Properties:
