@@ -150,7 +150,10 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+                  - dynamodb:PutItem
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+                  - !GetAtt UsersTable.Arn
 
   DependenciesLambdaLayer:
     Type: AWS::Lambda::LayerVersion
@@ -162,6 +165,29 @@ Resources:
         S3Bucket: lambda-dependencies-test
         S3Key: !Sub "${RepoName}/dependencies_layer.zip"
         S3ObjectVersion: !Ref LambdaLayerVersion
+
+  ## DynamoDb
+
+  UsersTable:
+    Type: 'AWS::DynamoDB::Table'
+    DeletionPolicy: Retain
+    Properties:
+      TableName: Users
+      AttributeDefinitions:
+        - AttributeName: uid
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: uid
+          KeyType: HASH
+        - AttributeName: email
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  ## API Gateway
 
   ApiGatewayRestApi:
     Type: 'AWS::ApiGateway::RestApi'
