@@ -23,7 +23,15 @@ exports.userCreated = functions.auth.user().onCreate((user) => {
     email: user.email,
   };
 
-  axios.post('https://p845ryq0vh.execute-api.eu-west-1.amazonaws.com/prod/user', data)
+  let token = admin.auth().createCustomToken(user.uid);
+
+  let config = {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  };
+
+  axios.post('https://p845ryq0vh.execute-api.eu-west-1.amazonaws.com/prod/user', data, config)
     .then((response) => {
       console.log('Received response: ', response);
     })
