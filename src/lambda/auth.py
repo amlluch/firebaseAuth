@@ -27,8 +27,12 @@ def lambda_handler(event, context):     # type: ignore
         auth_granted = True
 
     except Exception:
-        decoded_token = None
-        auth_granted = False
+        try:
+            decoded_token = auth.verify_custom_token(authorization_token)
+            auth_granted = True
+        except Exception:
+            decoded_token = None
+            auth_granted = False
 
     return make_auth_response(event, decoded_token=decoded_token,  auth_granted=auth_granted)
 
