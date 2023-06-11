@@ -22,17 +22,21 @@ def lambda_handler(event, context):     # type: ignore
     except Exception:
         return make_auth_response(event)
 
+    decoded_token = None
+    auth_granted = False
+
     try:
         decoded_token = auth.verify_id_token(authorization_token)
         auth_granted = True
+    except Exception as e:
+        print(f"Failed to verify ID token: {e}")
 
-    except Exception:
+    if not auth_granted:
         try:
             decoded_token = auth.verify_custom_token(authorization_token)
             auth_granted = True
-        except Exception:
-            decoded_token = None
-            auth_granted = False
+        except Exception as e:
+            print(f"Failed to verify custom token: {e}")
 
     return make_auth_response(event, decoded_token=decoded_token,  auth_granted=auth_granted)
 
