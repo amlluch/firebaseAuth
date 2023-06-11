@@ -82,16 +82,6 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:firebase*"
 
-#  AuthLambdaInvokePermission:
-#    Type: 'AWS::Lambda::Permission'
-#    Properties:
-#      FunctionName: !Ref AuthLambda
-#      Action: 'lambda:InvokeFunction'
-#      Principal: 'apigateway.amazonaws.com'
-#      SourceArn: !Sub
-#        - 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiId}/*'
-#        - ApiId: !Ref ApiGatewayRestApi
-
   GetUserExecutionRole:
     Type: AWS::IAM::Role
     Properties:
