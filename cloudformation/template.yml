@@ -265,7 +265,9 @@ Resources:
 
   ApiGatewayDeployment:
     Type: 'AWS::ApiGateway::Deployment'
-    DependsOn: GetUserMethod
+    DependsOn:
+      - GetUserMethod
+      - CreateUserMethod
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
       StageName: !Ref Stage
