@@ -221,14 +221,12 @@ Resources:
       Description: !Sub 'Deployment for ${Stage} stage'
 
   AccessDeniedGatewayResponse:
-    Type: "Custom::ApiGatewayGatewayResponse"
+    Type: 'AWS::ApiGateway::GatewayResponse'
     Properties:
-      ServiceToken: !GetAtt GatewayResponseLambdaFunction.Arn
-      RestApiId: !Ref 'ApiGatewayRestApi'
       ResponseType: ACCESS_DENIED
+      RestApiId: !Ref 'ApiGatewayRestApi'
       StatusCode: '403'
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
       ResponseTemplates:
-        application/json: >
-          {
-            "message": "Access Denied!"
-          }
+        application/json: "{ \"message\": \"Access Denied!\" }"
