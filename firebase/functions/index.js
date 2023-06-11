@@ -31,7 +31,7 @@ exports.userCreated = functions.auth.user().onCreate((user) => {
     }
   };
 
-  axios.post('https://p845ryq0vh.execute-api.eu-west-1.amazonaws.com/prod/user', data, config)
+  axios.post('https://izpqksq5sg.execute-api.eu-west-1.amazonaws.com/prod/user', data, config)
     .then((response) => {
       console.log('Received response: ', response);
     })
