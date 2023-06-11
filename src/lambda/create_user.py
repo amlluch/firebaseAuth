@@ -18,7 +18,7 @@ def lambda_handler(event, context):
                 'email': user_email
             }
         )
-        print(f'Successfully inserted item: {response}')
+        print(f'Successfully inserted item:  {response}')
         return {
             'statusCode': 200,
             'body': json.dumps('Successfully inserted item')
