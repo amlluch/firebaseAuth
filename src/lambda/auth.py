@@ -5,7 +5,7 @@ from firebase_admin import auth, credentials, initialize_app    # type: ignore
 
 
 secrets = os.environ["FIREBASE_CREDENTIALS"]
-firebase_auth = os.environ["FIREBASE_AUTH"]
+firebase_auth = json.loads(os.environ["FIREBASE_AUTH"])
 config = json.loads(secrets)
 
 cred = credentials.Certificate(config)
@@ -20,7 +20,7 @@ def lambda_handler(event, context):     # type: ignore
 
     authorization_header = event['authorizationToken']
 
-    if authorization_header == firebase_auth:
+    if authorization_header == firebase_auth["firebaseAuthAPI"]:
         make_auth_response(event, decoded_token={"email": "auth@functions"}, auth_granted=True)
 
     try:
