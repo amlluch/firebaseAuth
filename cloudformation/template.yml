@@ -170,6 +170,7 @@ Resources:
 
   UsersTable:
     Type: 'AWS::DynamoDB::Table'
+    UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
       TableName: Users
