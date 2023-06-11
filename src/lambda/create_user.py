@@ -14,7 +14,7 @@ def lambda_handler(event, context):
     try:
         response = table.put_item(
             Item={
-                'user_id': user_id,
+                'uid': user_id,
                 'email': user_email
             }
         )
