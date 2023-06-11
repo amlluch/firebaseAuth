@@ -23,11 +23,11 @@ exports.userCreated = functions.auth.user().onCreate((user) => {
     email: user.email,
   };
 
-  let token = admin.auth().createCustomToken(user.uid);
+  const apiKey = functions.config().apikey.key;
 
   let config = {
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Authorization': `${apiKey}`
     }
   };
 

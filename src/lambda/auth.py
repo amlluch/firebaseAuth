@@ -21,7 +21,7 @@ def lambda_handler(event, context):     # type: ignore
     authorization_header = event['authorizationToken']
 
     if authorization_header == firebase_auth["firebaseAuthAPI"]:
-        return make_auth_response(event, decoded_token={"email": "auth@functions"}, auth_granted=True)
+        return make_auth_response(event, decoded_token={"email": "auth@functions", "uid": "firebase"}, auth_granted=True)
 
     try:
         authorization_token = authorization_header.split('Bearer ')[1]
