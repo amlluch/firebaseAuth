@@ -41,6 +41,13 @@ def make_auth_response(event, decoded_token=None, auth_granted=False):
 
     if decoded_token is None:
         decoded_token = {}
+
+    arn_parts = event['methodArn'].split(":")
+    api_gateway_arn_parts = arn_parts[5].split("/")
+    api_gateway_arn_parts[2] = "*"
+
+    new_resource = f'{":".join(arn_parts[0:5])}:{"/".join(api_gateway_arn_parts)}'
+
     return {
         'principalId': decoded_token["uid"] if auth_granted else None,
         'policyDocument': {
@@ -49,7 +56,7 @@ def make_auth_response(event, decoded_token=None, auth_granted=False):
                 {
                     'Action': 'execute-api:Invoke',
                     'Effect': 'Allow' if auth_granted else 'Deny',
-                    'Resource': event['methodArn']
+                    'Resource': new_resource
                 }
             ]
         },
