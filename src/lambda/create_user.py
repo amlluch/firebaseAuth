@@ -5,7 +5,7 @@ from botocore.exceptions import BotoCoreError
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('users')
+    table = dynamodb.Table('Users')
 
     body = json.loads(event['body'])
     user_id = body['uid']
