@@ -570,14 +570,15 @@ jobs:
           node-version: 18
 
       - name: Install Firebase Tools
-        run: npm install -g firebase-tools
+        run: |
+          cd firebase
+          npm install -g firebase-tools
 
       - name: Deploy to Firebase
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
         run: |
-          cd firebase
           firebase deploy --only functions
           cd ..
 
