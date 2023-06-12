@@ -223,6 +223,16 @@ jobs:
             echo "tests_changed=false" >> $GITHUB_ENV
           fi
 
+      - name: Write tests_changed to file
+        run: |
+          echo ${{ env.tests_changed }} > tests_changed.txt
+
+      - name: Upload tests_changed as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: tests_changed
+          path: tests_changed.txt
+
       - name: Check if dependencies changed
         id: check_dependencies_changes
         run: |
@@ -351,21 +361,57 @@ jobs:
         echo "TAG is $TAG"
         echo "release_tag=$TAG" >> $GITHUB_ENV
 
+    - name: Download src_changed artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: src_changed
+
+    - name: Read src_changed
+      run: |
+        SRC_CHANGED=$(cat src_changed.txt)
+        echo "src_changed=$SRC_CHANGED" >> $GITHUB_ENV
+
+    - name: Download dependencies_changed artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: dependencies_changed
+
+    - name: Read dependencies_changed
+      run: |
+        DEPENDENCIES_CHANGED=$(cat dependencies_changed.txt)
+        echo "dependencies_changed=$DEPENDENCIES_CHANGED" >> $GITHUB_ENV
+
+    - name: Download tests_changed artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: tests_changed
+
+    - name: Read tests_changed
+      run: |
+        TESTS_CHANGED=$(cat tests_changed.txt)
+        echo "tests_changed=$TESTS_CHANGED" >> $GITHUB_ENV
+
     - name: Install jq
       run: sudo apt-get install -y jq
 
     - name: Set up Python Environment
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
     - name: Poetry Install
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
       uses: knowsuchagency/poetry-install@v2
       with:
         create-virtualenv: true
+
     - name: Install Dependencies
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
       run: |
         poetry install
+
     - name: Run Tests
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
       id: run_tests
       run: |
         poetry run pytest tests/
