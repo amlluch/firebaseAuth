@@ -564,6 +564,20 @@ jobs:
             echo "STAGE=dev" >> $GITHUB_ENV
           fi
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Deploy to Firebase
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+        run: |
+          cd firebase
+          firebase deploy --only functions
+          cd ..
+
       - name: Deploy to AWS CloudFormation
         run: |
           aws cloudformation deploy --template-file cloudformation/template.yml \
