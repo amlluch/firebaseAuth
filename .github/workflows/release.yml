@@ -295,6 +295,42 @@ jobs:
             echo "cloudformation_changed=false" >> $GITHUB_ENV
           fi
 
+      - name: Check if firebase changed
+        id: check_firebase_changes
+        run: |
+          # Get the tags for the last two releases
+
+          git fetch
+          git fetch --tags
+
+          LATEST_TAG=${{ env.release_tag }}
+          PREVIOUS_TAG=${{ env.previous_tag }}
+
+          # Compare the tags and set CHANGED
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "firebase_changed=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          if [ "$LATEST_TAG" != "$PREVIOUS_TAG" ]; then
+            CHANGED=$(git diff --name-only $PREVIOUS_TAG $LATEST_TAG -- firebase)
+          fi
+          if [ -n "$CHANGED" ]; then
+            echo "firebase_changed=true" >> $GITHUB_ENV
+          else
+            echo "firebase_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Write firebase_changed to file
+        run: |
+          echo ${{ env.firebase_changed }} > firebase_changed.txt
+
+      - name: Upload firebase_changed as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: firebase_changed
+          path: firebase_changed.txt
+
       - name: Set up Python Environment
         if: env.src_changed == 'true' || env.tests_changed == 'true'
         uses: actions/setup-python@v2
@@ -478,6 +514,16 @@ jobs:
           DEPENDENCIES_CHANGED=$(cat dependencies_changed.txt)
           echo "dependencies_changed=$DEPENDENCIES_CHANGED" >> $GITHUB_ENV
 
+      - name: Download firebase_changed artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: firebase_changed
+
+      - name: Read firebase_changed
+        run: |
+          FIREBASE_CHANGED=$(cat firebase_changed.txt)
+          echo "firebase_changed=$FIREBASE_CHANGED" >> $GITHUB_ENV
+
       - name: Generate zip for code
         if: env.src_changed == 'true'
         run: |
@@ -565,15 +611,18 @@ jobs:
           fi
 
       - name: Set up Node.js
+        if: env.firebase_changed == 'true'
         uses: actions/setup-node@v2
         with:
           node-version: 18
 
       - name: Install Firebase Tools
+        if: env.firebase_changed == 'true'
         run: |
           npm install -g firebase-tools
 
       - name: Deploy to Firebase
+        if: env.firebase_changed == 'true'
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
