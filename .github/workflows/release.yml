@@ -579,7 +579,7 @@ jobs:
 
         run: |
           cd firebase
-          npm install
+          npm ci
           firebase deploy --only functions
           cd ..
 
