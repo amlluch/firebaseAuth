@@ -578,10 +578,10 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
         run: |
-          cd firebase
+          cd firebase/functions
           npm ci
           firebase deploy --only functions
-          cd ..
+          cd ../..
 
       - name: Deploy to AWS CloudFormation
         run: |
