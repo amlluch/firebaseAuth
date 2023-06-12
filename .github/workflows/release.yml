@@ -571,7 +571,6 @@ jobs:
 
       - name: Install Firebase Tools
         run: |
-          cd firebase
           npm install -g firebase-tools
 
       - name: Deploy to Firebase
@@ -579,6 +578,8 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
         run: |
+          cd firebase
+          npm install
           firebase deploy --only functions
           cd ..
 
