@@ -338,6 +338,13 @@ jobs:
 #        with:
 #          create-virtualenv: true
 
+      - name: Set up Python Environment
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+          cache: 'poetry'
+
       - name: Poetry config
         if: env.src_changed == 'true'  || env.tests_changed == 'true'
         run: |
@@ -352,13 +359,6 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-poetry-
-
-      - name: Set up Python Environment
-        if: env.src_changed == 'true' || env.tests_changed == 'true'
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.8'
-          cache: 'poetry'
 
       - name: Install Dependencies
         if: env.src_changed == 'true' || env.tests_changed == 'true'
@@ -451,6 +451,13 @@ jobs:
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
       run: pipx install poetry
 
+    - name: Set up Python Environment
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        cache: 'poetry'
+
     - name: Poetry config
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
       run: |
@@ -465,13 +472,6 @@ jobs:
         key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
           ${{ runner.os }}-poetry-
-
-    - name: Set up Python Environment
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.8'
-        cache: 'poetry'
 
 #    - name: Install Dependencies
 #      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
