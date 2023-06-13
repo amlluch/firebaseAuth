@@ -333,9 +333,10 @@ jobs:
 
       - name: Poetry Install
         if: env.src_changed == 'true' || env.tests_changed == 'true'
-        uses: knowsuchagency/poetry-install@v2
-        with:
-          create-virtualenv: true
+        run: pipx install poetry
+#        uses: knowsuchagency/poetry-install@v2
+#        with:
+#          create-virtualenv: true
 
       - name: Set up Python Environment
         if: env.src_changed == 'true' || env.tests_changed == 'true'
@@ -433,9 +434,10 @@ jobs:
 
     - name: Poetry Install
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-      uses: knowsuchagency/poetry-install@v2
-      with:
-        create-virtualenv: true
+      run: pipx install poetry
+#      uses: knowsuchagency/poetry-install@v2
+#      with:
+#        create-virtualenv: true
 
     - name: Set up Python Environment
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
@@ -534,7 +536,8 @@ jobs:
 
       - name: Poetry Install
         if: env.dependencies_changed == 'true'
-        uses: knowsuchagency/poetry-install@v2
+        run: pipx install poetry
+#        uses: knowsuchagency/poetry-install@v2
 
       - name: Set up Python Environment
         if: env.lockfile_changed == 'true'
