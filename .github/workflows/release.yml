@@ -473,10 +473,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-poetry-
 
-#    - name: Install Dependencies
-#      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
-#      run: |
-#        poetry install
+    - name: Install Dependencies
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
+      run: |
+        poetry install
 
     - name: Run Tests
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
