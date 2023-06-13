@@ -52,7 +52,7 @@ jobs:
           echo ${{ env.prefix }} > prefix.txt
 
       - name: Upload prefix as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prefix
           path: prefix.txt
@@ -110,7 +110,7 @@ jobs:
           echo ${{ env.release_tag }} > release_tag.txt
 
       - name: Upload tag as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: release_tag
           path: release_tag.txt
@@ -192,7 +192,7 @@ jobs:
           echo ${{ env.src_changed }} > src_changed.txt
 
       - name: Upload src_changed as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: src_changed
           path: src_changed.txt
@@ -228,7 +228,7 @@ jobs:
           echo ${{ env.tests_changed }} > tests_changed.txt
 
       - name: Upload tests_changed as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tests_changed
           path: tests_changed.txt
@@ -264,7 +264,7 @@ jobs:
           echo ${{ env.dependencies_changed }} > dependencies_changed.txt
 
       - name: Upload dependencies_changed as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dependencies_changed
           path: dependencies_changed.txt
@@ -326,7 +326,7 @@ jobs:
           echo ${{ env.firebase_changed }} > firebase_changed.txt
 
       - name: Upload firebase_changed as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: firebase_changed
           path: firebase_changed.txt
