@@ -660,6 +660,7 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
         if: env.firebase_changed == 'true'
+        run: |
           cd firebase/functions
           npm ci
           firebase deploy --only functions
