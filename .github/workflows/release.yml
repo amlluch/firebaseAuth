@@ -139,7 +139,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download prefix artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: prefix
 
@@ -150,7 +150,7 @@ jobs:
           echo "prefix=$SETUP_PREFIX" >> $GITHUB_ENV
 
       - name: Download tag artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: release_tag
 
@@ -387,7 +387,7 @@ jobs:
         fetch-depth: 0
 
     - name: Download artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: release_tag
 
@@ -398,7 +398,7 @@ jobs:
         echo "release_tag=$TAG" >> $GITHUB_ENV
 
     - name: Download src_changed artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: src_changed
 
@@ -408,7 +408,7 @@ jobs:
         echo "src_changed=$SRC_CHANGED" >> $GITHUB_ENV
 
     - name: Download dependencies_changed artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: dependencies_changed
 
@@ -418,7 +418,7 @@ jobs:
         echo "dependencies_changed=$DEPENDENCIES_CHANGED" >> $GITHUB_ENV
 
     - name: Download tests_changed artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: tests_changed
 
@@ -473,7 +473,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: prefix
 
@@ -484,7 +484,7 @@ jobs:
           echo "prefix=$SETUP_PREFIX" >> $GITHUB_ENV
 
       - name: Download release tag artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: release_tag
 
@@ -495,7 +495,7 @@ jobs:
           echo "release_tag=$TAG" >> $GITHUB_ENV
 
       - name: Download src_changed artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: src_changed
 
@@ -505,7 +505,7 @@ jobs:
           echo "src_changed=$SRC_CHANGED" >> $GITHUB_ENV
 
       - name: Download dependencies_changed artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dependencies_changed
 
@@ -515,7 +515,7 @@ jobs:
           echo "dependencies_changed=$DEPENDENCIES_CHANGED" >> $GITHUB_ENV
 
       - name: Download firebase_changed artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: firebase_changed
 
