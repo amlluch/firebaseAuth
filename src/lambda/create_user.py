@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     body = json.loads(event['body'])
     user_id = body['uid']
     user_email = body['email']
-    print("Event", event)
+    print(event)
 
     try:
         table.put_item(

@@ -32,14 +32,14 @@ dev = ["black (==23.1.0)", "boto3 (>=1.23,<2)", "boto3-stubs[appconfig,serverles
 
 [[package]]
 name = "boto3"
-version = "1.26.151"
+version = "1.26.152"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 
 [package.dependencies]
-botocore = ">=1.29.151,<1.30.0"
+botocore = ">=1.29.152,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -48,8 +48,8 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "boto3-stubs"
-version = "1.26.151"
-description = "Type annotations for boto3 1.26.151 generated with mypy-boto3-builder 7.14.5"
+version = "1.26.152"
+description = "Type annotations for boto3 1.26.152 generated with mypy-boto3-builder 7.14.5"
 category = "main"
 optional = false
 python-versions = ">=3.7"
@@ -94,7 +94,7 @@ backup-gateway = ["mypy-boto3-backup-gateway (>=1.26.0,<1.27.0)"]
 backupstorage = ["mypy-boto3-backupstorage (>=1.26.0,<1.27.0)"]
 batch = ["mypy-boto3-batch (>=1.26.0,<1.27.0)"]
 billingconductor = ["mypy-boto3-billingconductor (>=1.26.0,<1.27.0)"]
-boto3 = ["boto3 (==1.26.151)", "botocore (==1.29.151)"]
+boto3 = ["boto3 (==1.26.152)", "botocore (==1.29.152)"]
 braket = ["mypy-boto3-braket (>=1.26.0,<1.27.0)"]
 budgets = ["mypy-boto3-budgets (>=1.26.0,<1.27.0)"]
 ce = ["mypy-boto3-ce (>=1.26.0,<1.27.0)"]
@@ -429,7 +429,7 @@ crt = ["awscrt (==0.16.9)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.29.151"
+version = "1.29.152"
 description = "Type annotations and code completion for botocore"
 category = "main"
 optional = false
@@ -722,17 +722,17 @@ requests = ["requests (>=2.18.0,<3.0.0dev)"]
 
 [[package]]
 name = "googleapis-common-protos"
-version = "1.59.0"
+version = "1.59.1"
 description = "Common protobufs used in Google APIs"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
+protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0.dev0"
 
 [package.extras]
-grpc = ["grpcio (>=1.44.0,<2.0.0dev)"]
+grpc = ["grpcio (>=1.44.0,<2.0.0.dev0)"]
 
 [[package]]
 name = "grpcio"
@@ -1084,7 +1084,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "pytest"
-version = "7.3.1"
+version = "7.3.2"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
@@ -1099,7 +1099,7 @@ pluggy = ">=0.12,<2.0"
 tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
-testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
+testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
 name = "python-dateutil"
@@ -1312,20 +1312,20 @@ aws-sam-translator = [
     {file = "aws_sam_translator-1.68.0-py3-none-any.whl", hash = "sha256:557d8080c9e6c1c609bfe806ea9545f7ea34144e2466c0ddc801806c2c05afdc"},
 ]
 boto3 = [
-    {file = "boto3-1.26.151-py3-none-any.whl", hash = "sha256:20b88a8145845e4923d438f5f89fdbdac5bae4011e706cd0974ac69c41f258b4"},
-    {file = "boto3-1.26.151.tar.gz", hash = "sha256:81bff32c96a6b4b203beb63826214d8cf24ca1a86e81d43bbb688a21c5d79e2a"},
+    {file = "boto3-1.26.152-py3-none-any.whl", hash = "sha256:a2778c5729d3dc0b3688c9f0d103543d7ec5ff44a4fd0e84d0d542e2dff05e62"},
+    {file = "boto3-1.26.152.tar.gz", hash = "sha256:ee0b8f8d238d4e1cf50fa6a185e4e066955b6105e9838a80b1b6582cd327dfdf"},
 ]
 boto3-stubs = [
-    {file = "boto3-stubs-1.26.151.tar.gz", hash = "sha256:ba7e3e441e0925e4dcda411f7f5be72168591b88754bceb68007922775b628ef"},
-    {file = "boto3_stubs-1.26.151-py3-none-any.whl", hash = "sha256:7857341b16d65129f493fd1a1b48ccd712ff81d743dde9456853ba4c99528131"},
+    {file = "boto3-stubs-1.26.152.tar.gz", hash = "sha256:9fc829fb19d2e94829d680ee62b60f6803d698cecf805182e6d11194ec0129c8"},
+    {file = "boto3_stubs-1.26.152-py3-none-any.whl", hash = "sha256:f6896d7f870e66c47976acd7eb392a06b5678321e4c6a91065d24d7cb8228a39"},
 ]
 botocore = [
     {file = "botocore-1.29.152-py3-none-any.whl", hash = "sha256:02a3205cc8579d4be6d537e63d72aebbf3f70f3aedcf40b3cae9dc2e24c774d0"},
     {file = "botocore-1.29.152.tar.gz", hash = "sha256:f6319ecdbe3d325878f837cac2874e461b4d90691bb2d2186f980bce3b3cfcc8"},
 ]
 botocore-stubs = [
-    {file = "botocore_stubs-1.29.151-py3-none-any.whl", hash = "sha256:89cbfcf4dcbdc58020f5df175b4008d2da0f48c2434723fb4db7fe0734032205"},
-    {file = "botocore_stubs-1.29.151.tar.gz", hash = "sha256:8334171832aef02f1896f83b84033721e9a5e85c7ec2c34aa91114613f7fec1c"},
+    {file = "botocore_stubs-1.29.152-py3-none-any.whl", hash = "sha256:d2cd7dcb99ecc42616fb09a3d6b8c88d2b62c3a09b618447b98cf6e3022997ef"},
+    {file = "botocore_stubs-1.29.152.tar.gz", hash = "sha256:8b8dc89c21fe142fcd07bd167a57d80fdc15c5630ca5ec2a4d451dac352bd9bb"},
 ]
 cachecontrol = [
     {file = "cachecontrol-0.13.1-py3-none-any.whl", hash = "sha256:95dedbec849f46dda3137866dc28b9d133fc9af55f5b805ab1291833e4457aa4"},
@@ -1622,8 +1622,8 @@ google-resumable-media = [
     {file = "google_resumable_media-2.5.0-py2.py3-none-any.whl", hash = "sha256:da1bd943e2e114a56d85d6848497ebf9be6a14d3db23e9fc57581e7c3e8170ec"},
 ]
 googleapis-common-protos = [
-    {file = "googleapis-common-protos-1.59.0.tar.gz", hash = "sha256:4168fcb568a826a52f23510412da405abd93f4d23ba544bb68d943b14ba3cb44"},
-    {file = "googleapis_common_protos-1.59.0-py2.py3-none-any.whl", hash = "sha256:b287dc48449d1d41af0c69f4ea26242b5ae4c3d7249a38b0984c86a4caffff1f"},
+    {file = "googleapis-common-protos-1.59.1.tar.gz", hash = "sha256:b35d530fe825fb4227857bc47ad84c33c809ac96f312e13182bdeaa2abe1178a"},
+    {file = "googleapis_common_protos-1.59.1-py2.py3-none-any.whl", hash = "sha256:0cbedb6fb68f1c07e18eb4c48256320777707e7d0c55063ae56c15db3224a61e"},
 ]
 grpcio = [
     {file = "grpcio-1.54.2-cp310-cp310-linux_armv7l.whl", hash = "sha256:40e1cbf69d6741b40f750f3cccc64326f927ac6145a9914d33879e586002350c"},
@@ -1948,8 +1948,8 @@ pyrsistent = [
     {file = "pyrsistent-0.19.3.tar.gz", hash = "sha256:1a2994773706bbb4995c31a97bc94f1418314923bd1048c6d964837040376440"},
 ]
 pytest = [
-    {file = "pytest-7.3.1-py3-none-any.whl", hash = "sha256:3799fa815351fea3a5e96ac7e503a96fa51cc9942c3753cda7651b93c1cfa362"},
-    {file = "pytest-7.3.1.tar.gz", hash = "sha256:434afafd78b1d78ed0addf160ad2b77a30d35d4bdf8af234fe621919d9ed15e3"},
+    {file = "pytest-7.3.2-py3-none-any.whl", hash = "sha256:cdcbd012c9312258922f8cd3f1b62a6580fdced17db6014896053d47cddf9295"},
+    {file = "pytest-7.3.2.tar.gz", hash = "sha256:ee990a3cc55ba808b80795a79944756f315c67c12b56abd3ac993a7b8c17030b"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
