@@ -331,18 +331,18 @@ jobs:
           name: firebase_changed
           path: firebase_changed.txt
 
+      - name: Poetry Install
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        uses: knowsuchagency/poetry-install@v2
+        with:
+          create-virtualenv: true
+
       - name: Set up Python Environment
         if: env.src_changed == 'true' || env.tests_changed == 'true'
         uses: actions/setup-python@v3
         with:
           python-version: '3.8'
           cache: 'poetry'
-
-      - name: Poetry Install
-        if: env.src_changed == 'true' || env.tests_changed == 'true'
-        uses: knowsuchagency/poetry-install@v2
-        with:
-          create-virtualenv: true
 
       - name: Install Dependencies
         if: env.src_changed == 'true' || env.tests_changed == 'true'
@@ -431,17 +431,18 @@ jobs:
     - name: Install jq
       run: sudo apt-get install -y jq
 
+    - name: Poetry Install
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
+      uses: knowsuchagency/poetry-install@v2
+      with:
+        create-virtualenv: true
+
     - name: Set up Python Environment
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
       uses: actions/setup-python@v4
       with:
         python-version: '3.8'
         cache: 'poetry'
-    - name: Poetry Install
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-      uses: knowsuchagency/poetry-install@v2
-      with:
-        create-virtualenv: true
 
     - name: Install Dependencies
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
@@ -531,16 +532,16 @@ jobs:
         run: |
           zip -r lambda_code.zip src
 
+      - name: Poetry Install
+        if: env.dependencies_changed == 'true'
+        uses: knowsuchagency/poetry-install@v2
+
       - name: Set up Python Environment
         if: env.lockfile_changed == 'true'
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
           cache: 'poetry'
-
-      - name: Poetry Install
-        if: env.dependencies_changed == 'true'
-        uses: knowsuchagency/poetry-install@v2
 
       - name: Export requirements
         if: env.dependencies_changed == 'true'
