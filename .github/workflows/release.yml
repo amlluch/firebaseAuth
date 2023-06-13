@@ -446,10 +446,10 @@ jobs:
 #        python-version: '3.8'
 #        cache: 'poetry'
 
-    - name: Install Dependencies
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-      run: |
-        poetry install
+#    - name: Install Dependencies
+#      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
+#      run: |
+#        poetry install
 
     - name: Run Tests
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
