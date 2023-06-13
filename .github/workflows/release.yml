@@ -432,9 +432,9 @@ jobs:
     - name: Install jq
       run: sudo apt-get install -y jq
 
-    - name: Poetry Install
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-      run: pipx install poetry
+#    - name: Poetry Install
+#      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
+#      run: pipx install poetry
 #      uses: knowsuchagency/poetry-install@v2
 #      with:
 #        create-virtualenv: true
@@ -446,10 +446,10 @@ jobs:
         python-version: '3.8'
         cache: 'poetry'
 
-#    - name: Install Dependencies
-#      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-#      run: |
-#        poetry install
+    - name: Install Dependencies
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
+      run: |
+        poetry install
 
     - name: Run Tests
       if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
