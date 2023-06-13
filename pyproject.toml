@@ -14,6 +14,7 @@ types-pyyaml = "^6.0.12.10"
 grpcio-status = "^1.54.2"
 boto3-stubs = "^1.26.151"
 boto3 = "^1.26.151"
+requests = "^2.31.0"
 
 
 [tool.poetry.group.dev.dependencies]
