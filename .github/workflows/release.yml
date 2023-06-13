@@ -338,6 +338,21 @@ jobs:
 #        with:
 #          create-virtualenv: true
 
+      - name: Poetry config
+        if: env.src_changed == 'true'  || env.tests_changed == 'true'
+        run: |
+          poetry config virtualenvs.in-project true
+          echo "POETRY_VENV_PATH=$(poetry env info --path)" >> $GITHUB_ENV
+
+      - name: Cache Poetry dependencies
+        if: env.src_changed == 'true' || env.tests_changed == 'true'
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.POETRY_VENV_PATH }}
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
       - name: Set up Python Environment
         if: env.src_changed == 'true' || env.tests_changed == 'true'
         uses: actions/setup-python@v3
@@ -432,27 +447,39 @@ jobs:
     - name: Install jq
       run: sudo apt-get install -y jq
 
-#    - name: Poetry Install
-#      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-#      run: pipx install poetry
-#      uses: knowsuchagency/poetry-install@v2
-#      with:
-#        create-virtualenv: true
+    - name: Poetry Install
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
+      run: pipx install poetry
+
+    - name: Poetry config
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
+      run: |
+        poetry config virtualenvs.in-project true
+        echo "POETRY_VENV_PATH=$(poetry env info --path)" >> $GITHUB_ENV
+
+    - name: Cache Poetry dependencies
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.POETRY_VENV_PATH }}
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
 
     - name: Set up Python Environment
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
       uses: actions/setup-python@v4
       with:
         python-version: '3.8'
         cache: 'poetry'
 
-    - name: Install Dependencies
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
-      run: |
-        poetry install
+#    - name: Install Dependencies
+#      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
+#      run: |
+#        poetry install
 
     - name: Run Tests
-      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.tests_changed == 'true'
+      if: env.src_changed == 'true' || env.tests_changed == 'true' || env.dependencies_changed == 'true'
       id: run_tests
       run: |
         poetry run pytest tests/
@@ -537,14 +564,6 @@ jobs:
       - name: Poetry Install
         if: env.dependencies_changed == 'true'
         run: pipx install poetry
-#        uses: knowsuchagency/poetry-install@v2
-
-      - name: Set up Python Environment
-        if: env.lockfile_changed == 'true'
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
-          cache: 'poetry'
 
       - name: Export requirements
         if: env.dependencies_changed == 'true'
