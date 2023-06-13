@@ -650,9 +650,11 @@ jobs:
       - name: Deploy to Firebase
         if: env.firebase_changed == 'true'
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
 
         run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$GITHUB_WORKSPACE"/gcp_key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/gcp_key.json" >> $GITHUB_ENV
           cd firebase/functions
           npm ci
           firebase deploy --only functions

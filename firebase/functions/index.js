@@ -13,6 +13,7 @@ const logger = require("firebase-functions/logger");
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const axios = require('axios');
+const apiKey = functions.config().apikey.key;
 admin.initializeApp();
 
 exports.userCreated = functions.auth.user().onCreate((user) => {
@@ -23,7 +24,6 @@ exports.userCreated = functions.auth.user().onCreate((user) => {
     email: user.email,
   };
 
-  const apiKey = functions.config().apikey.key;
 
   let config = {
     headers: {
