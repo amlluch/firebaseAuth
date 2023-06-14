@@ -493,6 +493,12 @@ jobs:
         
         gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
         gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/${{ env.release_tag }}
+        
+        latest_release_id=$(gh api repos/:owner/:repo/releases | jq '.[0].id')
+          gh api -X DELETE /repos/:owner/:repo/git/refs/tags/Latest
+          gh api -X POST /repos/:owner/:repo/git/refs \
+            -f ref=refs/tags/Latest \
+            -f sha=$latest_release_id
 
   deploy:
     needs: [ test ]
@@ -683,3 +689,9 @@ jobs:
           
           gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
           gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/${{ env.release_tag }}
+          
+          latest_release_id=$(gh api repos/:owner/:repo/releases | jq '.[0].id')
+          gh api -X DELETE /repos/:owner/:repo/git/refs/tags/Latest
+          gh api -X POST /repos/:owner/:repo/git/refs \
+            -f ref=refs/tags/Latest \
+            -f sha=$latest_release_id
